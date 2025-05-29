@@ -43,7 +43,7 @@ export default function ProductClientView({ product, category }: ProductClientVi
     if (user?.role === 'dealer' && product.dp) {
       displayPrices = [
         { label: 'MRP', value: product.mrp, isStriked: true },
-        { label: 'Wholesale Price', value: product.dp, isPrimary: true, isAccent: true }
+{ label: 'Wholesale Price', value: product.dp, isPrimary: true }
       ];
     }
     return displayPrices;
@@ -109,7 +109,7 @@ export default function ProductClientView({ product, category }: ProductClientVi
                 <div className="space-y-3 mb-6">
                   {prices.map((p, idx) => (
                     <div key={idx} className={`flex items-baseline gap-2 ${p.isPrimary ? 'text-3xl' : 'text-lg'}`}>
-                      <span className={`font-medium ${p.isStriked ? 'line-through text-muted-foreground' : (p.isAccent ? 'text-accent' : 'text-primary')}`}>
+<span className={`font-medium ${p.isStriked ? 'line-through text-muted-foreground' : 'text-primary'}`}>
                         ₹{p.value.toLocaleString()}
                       </span>
                       {p.label !== 'MRP' || p.isPrimary ? <span className="text-sm text-muted-foreground">{p.label}</span> : null}
