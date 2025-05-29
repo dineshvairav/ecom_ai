@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState } from 'react';
@@ -32,13 +33,21 @@ export function AuthModal({ isOpen, onOpenChange, onLoginSuccess }: AuthModalPro
   const [name, setName] = useState(''); // For sign up
 
   const handleLogin = (role: 'user' | 'guest' | 'admin' | 'dealer') => {
-    // In a real app, you'd call an API here.
-    // For mock, we just use the role.
-    if (role !== 'guest' && (!email || (role !== 'admin' && !password))) {
+    if (role === 'guest') {
+      login('guest'); // Pass no email for guest to ensure anonymity
+      toast({ title: "Login Successful", description: `Welcome, guest!` });
+      onOpenChange(false);
+      if (onLoginSuccess) onLoginSuccess();
+      return;
+    }
+
+    // For other roles (user, admin, dealer)
+    if (!email || (role !== 'admin' && !password)) {
         toast({ title: "Missing Fields", description: "Please enter email and password.", variant: "destructive" });
         return;
     }
-    login(role, email);
+    
+    login(role, email); // Pass email for non-guest roles
     toast({ title: "Login Successful", description: `Welcome, ${role}!` });
     onOpenChange(false);
     if (onLoginSuccess) onLoginSuccess();
@@ -51,7 +60,7 @@ export function AuthModal({ isOpen, onOpenChange, onLoginSuccess }: AuthModalPro
     }
     // Mock sign up, then login as user
     console.log("Mock sign up with:", { name, email, password });
-    login('user', email);
+    login('user', email); // Sign up defaults to 'user' role and passes email
     toast({ title: "Sign Up Successful", description: `Welcome, ${name}!` });
     onOpenChange(false);
     if (onLoginSuccess) onLoginSuccess();
