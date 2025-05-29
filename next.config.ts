@@ -2,7 +2,6 @@ import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
   output: "export",
   typescript: {
     ignoreBuildErrors: true,
@@ -11,7 +10,7 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: true,
   },
   images: {
-    unoptimized: true, // Add this line to disable image optimization
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: 'https',
