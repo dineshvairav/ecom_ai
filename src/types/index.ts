@@ -3,6 +3,7 @@ export interface User {
   email?: string;
   role: 'guest' | 'user' | 'dealer' | 'admin';
   name?: string;
+  mobile?: string; // Optional mobile number
 }
 
 export interface Category {

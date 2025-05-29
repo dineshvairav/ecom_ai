@@ -7,7 +7,7 @@ import { mockUsers } from '@/lib/mock-data'; // For mock login
 
 interface AuthContextType {
   user: User | null;
-  login: (role: User['role'], email?: string) => void;
+  login: (role: User['role'], email?: string, mobile?: string) => void;
   logout: () => void;
   loading: boolean;
 }
@@ -19,8 +19,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate checking for a logged-in user (e.g., from localStorage)
-    // For now, default to guest
     const storedUser = localStorage.getItem('visualVestUser');
     if (storedUser) {
       try {
@@ -28,29 +26,68 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       } catch (error) {
         console.error("Failed to parse stored user:", error);
         localStorage.removeItem('visualVestUser');
-        setUser({ id: 'guest-initial', role: 'guest' });
+        setUser({ id: 'guest-initial', role: 'guest', name: 'Guest User' });
       }
     } else {
-      setUser({ id: 'guest-initial', role: 'guest' });
+      setUser({ id: 'guest-initial', role: 'guest', name: 'Guest User' });
     }
     setLoading(false);
   }, []);
 
-  const login = (role: User['role'], email?: string) => {
-    let foundUser: User | undefined;
-    if (email) {
-      foundUser = mockUsers.find(u => u.email === email && u.role === role);
+  const login = (role: User['role'], email?: string, mobile?: string) => {
+    let userToSet: User;
+
+    if (role === 'guest') {
+      const guestBase = mockUsers.find(u => u.role === 'guest' && !u.email && !u.mobile);
+      const guestId = mobile ? `guest-mob-${Date.now()}` : `guest-${Date.now()}`;
+      const guestName = 'Guest User'; // Consistent name for guests
+
+      userToSet = {
+        ...(guestBase || { id: '', name: '' }), // Spread generic guest fields if any
+        id: guestId,
+        role: 'guest',
+        name: guestName,
+        email: undefined, // Explicitly no email for guests
+        mobile: mobile && mobile.trim() !== '' ? mobile.trim() : undefined,
+      };
     } else {
-      foundUser = mockUsers.find(u => u.role === role); // Simple mock: find first user of that role
+      // Logic for registered users (user, admin, dealer)
+      let foundUser = mockUsers.find(u => u.email === email && u.role === role);
+      if (!foundUser && email) { 
+          foundUser = {
+              id: email, // Use email as ID if creating on the fly
+              email: email,
+              role: role,
+              name: email.split('@')[0],
+          };
+      } else if (!foundUser) { // Fallback if no email for some reason
+          const genericUserForRole = mockUsers.find(u => u.role === role && !u.email);
+          foundUser = genericUserForRole || {
+              id: `mock-${role}-${Date.now()}`,
+              role: role,
+              name: role.charAt(0).toUpperCase() + role.slice(1) + " User", // e.g. "Admin User"
+          };
+      }
+      userToSet = foundUser!;
+       // Ensure mobile is not accidentally carried over to non-guest users unless intended
+      if (userToSet.role !== 'guest') {
+        delete userToSet.mobile;
+      }
     }
-    
-    const loggedInUser = foundUser || { id: email || `mock-${role}-${Date.now()}`, email, role, name: email ? email.split('@')[0] : role };
-    setUser(loggedInUser);
-    localStorage.setItem('visualVestUser', JSON.stringify(loggedInUser));
+
+    setUser(userToSet);
+    localStorage.setItem('visualVestUser', JSON.stringify(userToSet));
   };
 
   const logout = () => {
-    const guestUser = { id: 'guest-logout', role: 'guest' };
+    // When logging out, revert to a generic guest user state without mobile/email
+    const guestUser: User = { 
+        id: `guest-logout-${Date.now()}`, 
+        role: 'guest', 
+        name: 'Guest User', 
+        email: undefined, 
+        mobile: undefined 
+    };
     setUser(guestUser);
     localStorage.setItem('visualVestUser', JSON.stringify(guestUser));
   };

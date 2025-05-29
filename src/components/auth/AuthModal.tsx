@@ -17,7 +17,7 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { Mail, Key, User as UserIcon, LogIn, UserPlus, Coffee } from 'lucide-react';
+import { Mail, Key, User as UserIcon, LogIn, UserPlus, Coffee, Phone } from 'lucide-react';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -31,10 +31,11 @@ export function AuthModal({ isOpen, onOpenChange, onLoginSuccess }: AuthModalPro
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState(''); // For sign up
+  const [mobile, setMobile] = useState(''); // For guest mobile
 
   const handleLogin = (role: 'user' | 'guest' | 'admin' | 'dealer') => {
     if (role === 'guest') {
-      login('guest'); // Pass no email for guest to ensure anonymity
+      login('guest', undefined, mobile); // Pass mobile for guest
       toast({ title: "Login Successful", description: `Welcome, guest!` });
       onOpenChange(false);
       if (onLoginSuccess) onLoginSuccess();
@@ -42,7 +43,7 @@ export function AuthModal({ isOpen, onOpenChange, onLoginSuccess }: AuthModalPro
     }
 
     // For other roles (user, admin, dealer)
-    if (!email || (role !== 'admin' && !password)) {
+    if (!email || (role !== 'admin' && !password && role !== 'dealer' /* dealer might also have specific login */)) {
         toast({ title: "Missing Fields", description: "Please enter email and password.", variant: "destructive" });
         return;
     }
@@ -60,7 +61,7 @@ export function AuthModal({ isOpen, onOpenChange, onLoginSuccess }: AuthModalPro
     }
     // Mock sign up, then login as user
     console.log("Mock sign up with:", { name, email, password });
-    login('user', email); // Sign up defaults to 'user' role and passes email
+    login('user', email); 
     toast({ title: "Sign Up Successful", description: `Welcome, ${name}!` });
     onOpenChange(false);
     if (onLoginSuccess) onLoginSuccess();
@@ -98,14 +99,19 @@ export function AuthModal({ isOpen, onOpenChange, onLoginSuccess }: AuthModalPro
                   <Input id="password-signin" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} className="pl-10" />
                 </div>
               </div>
+              <div>
+                <Label htmlFor="mobile-guest-signin">Mobile (Optional for Guest)</Label>
+                <div className="relative">
+                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input id="mobile-guest-signin" type="tel" placeholder="For guest access, if desired" value={mobile} onChange={(e) => setMobile(e.target.value)} className="pl-10" />
+                </div>
+              </div>
               <Button onClick={() => handleLogin('user')} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
                 <LogIn className="mr-2 h-4 w-4" /> Sign In
               </Button>
               <Button variant="outline" onClick={() => handleLogin('guest')} className="w-full">
                 <Coffee className="mr-2 h-4 w-4" /> Continue as Guest
               </Button>
-              {/* Simplified: Admin/Dealer login might be separate or use specific credentials */}
-              {/* <Button variant="link" onClick={() => handleLogin('admin')} className="w-full text-xs">Login as Admin (Demo)</Button> */}
             </div>
           </TabsContent>
 
