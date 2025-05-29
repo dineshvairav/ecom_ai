@@ -1,8 +1,9 @@
+
 "use client";
 
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, CheckCircle, ShoppingBag, Sparkles } from 'lucide-react';
+import { ArrowRight, CheckCircle, ShoppingBag, Sparkles, LogIn } from 'lucide-react';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 
@@ -95,28 +96,34 @@ export function IntroSlider({ onComplete }: IntroSliderProps) {
       </div>
 
       <div className="flex items-center justify-between w-full mt-auto pt-4">
-        <div className="flex space-x-2">
-          {slides.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => {
-                 setAnimating('out');
-                 setTimeout(() => {
-                    setCurrentSlide(index);
-                    setAnimating('in');
-                 }, 300);
-              }}
-              className={`w-3 h-3 rounded-full transition-colors ${
-                currentSlide === index ? 'bg-primary' : 'bg-muted hover:bg-primary/50'
-              }`}
-              aria-label={`Go to slide ${index + 1}`}
-            />
-          ))}
-        </div>
-        <Button onClick={handleNext} size="lg" className="group">
-          {currentSlide < slides.length - 1 ? 'Next' : 'Finish'}
-          <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+        <Button onClick={onComplete} variant="ghost" size="sm" className="text-muted-foreground hover:text-primary">
+          <LogIn className="mr-2 h-4 w-4" />
+          Skip to Login
         </Button>
+        <div className="flex items-center space-x-4">
+            <div className="flex space-x-2">
+            {slides.map((_, index) => (
+                <button
+                key={index}
+                onClick={() => {
+                    setAnimating('out');
+                    setTimeout(() => {
+                        setCurrentSlide(index);
+                        setAnimating('in');
+                    }, 300);
+                }}
+                className={`w-3 h-3 rounded-full transition-colors ${
+                    currentSlide === index ? 'bg-primary' : 'bg-muted hover:bg-primary/50'
+                }`}
+                aria-label={`Go to slide ${index + 1}`}
+                />
+            ))}
+            </div>
+            <Button onClick={handleNext} size="lg" className="group">
+            {currentSlide < slides.length - 1 ? 'Next' : 'Finish'}
+            <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+            </Button>
+        </div>
       </div>
     </div>
   );
